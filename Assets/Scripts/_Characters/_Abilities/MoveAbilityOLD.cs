@@ -1,8 +1,9 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class MoveAbility : MonoBehaviour, IAbility {
+public class MoveAbilityOLD : MonoBehaviour, IAbility {
     public AbilityType AbilityType { get; private set; }
 
     [SerializeField, Range(1, 10)] private float _movementSpeed = 2f;
@@ -35,12 +36,12 @@ public class MoveAbility : MonoBehaviour, IAbility {
 
     private void OnEnable() {
         if (!_hasInitialized) { return; }
-        PlayerInputManager.Instance.OnClick += CheckForAbilityInput;
+        PlayerInputManager.Instance.OnColliderClickStart += CheckForAbilityInput;
         _abilityButtonUIInstance.onClick.AddListener(DisplayAbilityExecutionPrompt);
     }
 
     private void OnDisable() {
-        PlayerInputManager.Instance.OnClick -= CheckForAbilityInput;
+        PlayerInputManager.Instance.OnColliderClickStart -= CheckForAbilityInput;
         _abilityButtonUIInstance.onClick.RemoveListener(DisplayAbilityExecutionPrompt);
     }
     private void Awake() {
@@ -48,12 +49,11 @@ public class MoveAbility : MonoBehaviour, IAbility {
 
         CacheAbilityAssetsFromResources();
     }
-    private void Start() {
-        PlayerInputManager.Instance.OnClick += CheckForAbilityInput;
+    private void Start() {        
+        PlayerInputManager.Instance.OnColliderClickStart += CheckForAbilityInput;
         _abilityButtonUIInstance.onClick.AddListener(DisplayAbilityExecutionPrompt);
 
         _hasInitialized = true;
-
 
         _characterUI.AddAbilityButtonUI(_abilityButtonUIInstance);
         _characterUI.AddAbilityPromptUI(_abilityExecutionPromptUIInstance);
@@ -92,14 +92,15 @@ public class MoveAbility : MonoBehaviour, IAbility {
 
         HideAbilityExecutionPrompt();
 
-        ExecuteAbility();
+        Execute(this.gameObject);
     }
 
     private void HideAbilityExecutionPrompt() {
         _isPromptingForInput = false;
         _abilityExecutionPromptUIInstance.gameObject.SetActive(false);
     }
-    public void ExecuteAbility() {
+
+    public void Execute(GameObject user) {
         _isExecutingAbility = true;
     }
 }

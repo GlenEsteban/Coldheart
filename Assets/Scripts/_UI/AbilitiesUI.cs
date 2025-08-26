@@ -23,6 +23,9 @@ public class AbilitiesUI : MonoBehaviour {
         _abilityButtonsUIAnimator.SetBool("IsDisplayed", true);
     }
     public void HideAbilitiesUI() {
+        if (_abilityButtonsUIAnimator == null || 
+            _abilityButtonsUIAnimator.GetBool("IsDisplayed") == false) { return; }
+
         _abilityButtonsUIAnimator.SetBool("IsDisplayed", false);
 
         StartCoroutine(DelayDisableAbilitiesUI()); // FIX ANIMTATION TIMING

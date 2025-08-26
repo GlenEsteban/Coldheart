@@ -2,8 +2,8 @@ using TMPro;
 using UnityEngine;
 
 public class CharacterSelectedUI : MonoBehaviour {
-    public static Color PlayerSelectedColor = Color.green;
-    public static Color EnemySelectedColor = Color.red;
+    public static Color PlayerSelectedColor;
+    public static Color EnemySelectedColor;
 
     private Character _character;
     private SpriteRenderer _characterSelectedHighlightUI;
@@ -19,6 +19,11 @@ public class CharacterSelectedUI : MonoBehaviour {
     }
 
     private void Awake() {
+        if (PlayerSelectedColor == default) {
+            PlayerSelectedColor = HexToColor("#5FFFA5");
+            EnemySelectedColor = HexToColor("#FF2F53");
+        }
+
         _character = GetComponentInParent<Character>();
         _characterSelectedHighlightUI = GetComponentInChildren<SpriteRenderer>(true); // true = include inactive children in search
         _nameUI = GetComponentInChildren<TextMeshProUGUI>(true); // true = include inactive children in search
@@ -37,5 +42,13 @@ public class CharacterSelectedUI : MonoBehaviour {
         else if (characterType == CharacterType.Enemy) {
             _characterSelectedHighlightUI.color = EnemySelectedColor;
         }  
+    }
+
+    public static Color HexToColor(string hex) {
+        if (ColorUtility.TryParseHtmlString(hex, out var color)) {
+            return color;
+        }
+        Debug.LogWarning($"Invalid hex code: {hex}. Defaulting to white.");
+        return Color.white;
     }
 }

@@ -6,7 +6,8 @@ public class CharacterManager : MonoBehaviour {
     public static CharacterManager Instance;
 
     public event Action OnCharacterRegistryChange;
-    public event Action OnSelectCharacter;
+    public event Action OnSelectCharacterOnClickStart;
+    public event Action OnSelectCharacterOnClickEnd;
 
     [field: SerializeField] public Character SelectedCharacter { get; set; }
 
@@ -24,7 +25,7 @@ public class CharacterManager : MonoBehaviour {
 
     public void UpdateSelectedCharacter(Character selectedCharacter) {
         Instance.SelectedCharacter = selectedCharacter;
-        OnSelectCharacter?.Invoke();
+        OnSelectCharacterOnClickStart?.Invoke();
     }
 
     public void RegisterCharacter(Character character, CharacterType characterType) {

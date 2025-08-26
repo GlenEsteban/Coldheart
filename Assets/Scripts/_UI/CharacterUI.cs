@@ -7,7 +7,6 @@ public class CharacterUI : MonoBehaviour {
     private AbilitiesUI _abilitiesUI;
     private AbilityPromptsUI _abililtyPromptsUI;
 
-    private Character _character;
     private bool _hasInitialized = false;
 
     public void EnableAbilitiesUI() {
@@ -31,31 +30,38 @@ public class CharacterUI : MonoBehaviour {
 
     private void OnEnable() {
         if (!_hasInitialized) { return; } // Lazy initialization pattern ensures resubscription when game object is reenabled
-        CharacterManager.Instance.OnSelectCharacter += CharacterSelectedCheck;
+        PlayerInputManager.Instance.OnClickStart += CheckIfCharacterSelectedOnClickStart;
+        PlayerInputManager.Instance.OnClickEnd += CheckIfCharacterSelectedOnFocusedClick;
     }
     private void OnDisable() {
-        CharacterManager.Instance.OnSelectCharacter -= CharacterSelectedCheck;
+        PlayerInputManager.Instance.OnClickStart -= CheckIfCharacterSelectedOnClickStart;
+        PlayerInputManager.Instance.OnClickEnd -= CheckIfCharacterSelectedOnFocusedClick;
     }
     private void Awake() {
-        _character = GetComponent<Character>();
-
         _characterSelectedUI = GetComponentInChildren<CharacterSelectedUI>();
         _abilitiesUI = GetComponentInChildren<AbilitiesUI>();
         _abililtyPromptsUI = GetComponentInChildren<AbilityPromptsUI>();
     }
     private void Start() {
-        CharacterManager.Instance.OnSelectCharacter += CharacterSelectedCheck; 
+        PlayerInputManager.Instance.OnClickStart += CheckIfCharacterSelectedOnClickStart; 
+        PlayerInputManager.Instance.OnClickEnd += CheckIfCharacterSelectedOnFocusedClick;
         _hasInitialized = true;
     }
-
-    private void CharacterSelectedCheck() {
-        if (CharacterManager.Instance.SelectedCharacter != null &&
-            CharacterManager.Instance.SelectedCharacter.gameObject == _character.gameObject) {
+    
+    private void CheckIfCharacterSelectedOnClickStart() {
+        if (PlayerInputManager.Instance.SelectedCharacterOnClickStart == gameObject.GetComponent<Character>()) {
             _characterSelectedUI.DisplayCharacterSelectedUI();
-            _abilitiesUI.DisplayAbliltiesUI();
         }
         else {
             _characterSelectedUI.HideCharacterSelectedUI();
+        }
+    }
+
+    private void CheckIfCharacterSelectedOnFocusedClick() {
+        if (PlayerInputManager.Instance.SelectedCharacterOnClickEnd == gameObject.GetComponent<Character>()) {
+            _abilitiesUI.DisplayAbliltiesUI();
+        }
+        else {
             _abilitiesUI.HideAbilitiesUI();
         }
     }

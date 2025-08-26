@@ -1,4 +1,6 @@
-﻿public interface IAbility{
+﻿using UnityEngine;
+
+public interface IAbility{
     void DisplayAbilityExecutionPrompt();
-    void ExecuteAbility();
+    void Execute(GameObject user);
 }
