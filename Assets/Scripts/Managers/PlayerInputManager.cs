@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,19 +13,18 @@ public class PlayerInputManager : MonoBehaviour{
 
     public Collider2D[] CollidersOnClickStart { get; private set; }
     public Collider2D[] CollidersOnClickEnd { get; private set; }
-
     public Character SelectedCharacterOnClickStart { get; private set; }
     public Character SelectedCharacterOnClickEnd { get; private set; }
 
-    private PlayerInputActions _playerInputActions;
-    private Camera _mainCam;
+    private PlayerInputActions playerInputActions;
+    private Camera mainCam;
 
-    private Vector2 _mouseClickPoint;
+    private Vector2 mouseClickPoint;
 
     private void Awake() {
-        _playerInputActions = new PlayerInputActions();
+        playerInputActions = new PlayerInputActions();
 
-        _mainCam = Camera.main;
+        mainCam = Camera.main;
 
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
@@ -37,24 +35,25 @@ public class PlayerInputManager : MonoBehaviour{
     }
 
     private void OnEnable() {
-        _playerInputActions.Enable();
+        playerInputActions.Enable();
 
-        _playerInputActions.Player.OnMouseClick.started += OnMouseClick;
-        _playerInputActions.Player.OnMouseClick.canceled += OnMouseClick;
+        playerInputActions.Player.OnMouseClick.started += OnMouseClick;
+        playerInputActions.Player.OnMouseClick.canceled += OnMouseClick;
     }
 
     private void OnDisable() {
-        _playerInputActions.Disable();
+        playerInputActions.Disable();
 
-        _playerInputActions.Player.OnMouseClick.started -= OnMouseClick;
-        _playerInputActions.Player.OnMouseClick.canceled -= OnMouseClick;
+        playerInputActions.Player.OnMouseClick.started -= OnMouseClick;
+        playerInputActions.Player.OnMouseClick.canceled -= OnMouseClick;
     }
 
     public void OnMouseClick(InputAction.CallbackContext context) {
         UpdateMousePosition();
 
         if (context.started) {
-            CollidersOnClickStart = Physics2D.OverlapPointAll(_mouseClickPoint);
+            CollidersOnClickStart = Physics2D.OverlapPointAll(mouseClickPoint);
+
             if (CollidersOnClickStart != null) {
                 SelectedCharacterOnClickStart = CheckForCharacter(CollidersOnClickStart);
 
@@ -67,7 +66,7 @@ public class PlayerInputManager : MonoBehaviour{
             OnClickStart?.Invoke();
         }
         else if (context.canceled) {
-            CollidersOnClickEnd = Physics2D.OverlapPointAll(_mouseClickPoint);
+            CollidersOnClickEnd = Physics2D.OverlapPointAll(mouseClickPoint);
             if (CollidersOnClickEnd != null) {
                 SelectedCharacterOnClickEnd= CheckForCharacter(CollidersOnClickEnd);
 
@@ -83,9 +82,9 @@ public class PlayerInputManager : MonoBehaviour{
 
     private void UpdateMousePosition() {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-        Vector2 mouseWorldPos = _mainCam.ScreenToWorldPoint(mouseScreenPos);
+        Vector2 mouseWorldPos = mainCam.ScreenToWorldPoint(mouseScreenPos);
 
-        _mouseClickPoint = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+        mouseClickPoint = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
     }
 
     public Character CheckForCharacter(Collider2D[] colliderArrayToCheck) {
@@ -98,15 +97,5 @@ public class PlayerInputManager : MonoBehaviour{
         }
 
         return null;
-    }
-
-    public bool HasClickedOnTargetCollider(Collider2D targetCollider) {
-        foreach (Collider2D collider in CollidersOnClickStart) {
-            if (collider == targetCollider) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

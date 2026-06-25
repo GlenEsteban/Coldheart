@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SpriteSortingOrderHandler : MonoBehaviour {
+public class SpriteSortingOrderUpdater : MonoBehaviour {
     private static int sortingOrderBase = 5000;
 
     [SerializeField] private int orderSpacingFactor = 100;

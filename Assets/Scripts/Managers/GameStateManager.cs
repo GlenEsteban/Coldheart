@@ -5,7 +5,7 @@ public class GameStateManager : MonoBehaviour {
 
     public GameState currentGameState;
 
-    void Start() {
+    private void Start() {
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
         }
@@ -16,7 +16,24 @@ public class GameStateManager : MonoBehaviour {
         currentGameState = GameState.Transition;
     }
 
-    public void ChangeBattleState(GameState state) {
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) {
+            ChangeGameState(GameState.Transition);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) {
+            ChangeGameState(GameState.PlayerTurn);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3)) {
+            ChangeGameState(GameState.EnemyTurn);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4)) {
+            ChangeGameState(GameState.GameWin);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) {
+            ChangeGameState(GameState.GameOver);
+        }
+    }
+    public void ChangeGameState(GameState state) {
         if (currentGameState == state) { return; }
 
         currentGameState = state;

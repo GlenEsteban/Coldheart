@@ -9,10 +9,10 @@ public class CharacterManager : MonoBehaviour {
     public event Action OnSelectCharacterOnClickStart;
     public event Action OnSelectCharacterOnClickEnd;
 
-    [field: SerializeField] public Character SelectedCharacter { get; set; }
+    [field: SerializeField] public Character SelectedCharacter { get; private set; }
 
-    public List<Character> _playerCharacters = new List<Character>();
-    public List<Character> _enemyCharacters = new List<Character>();
+    public List<Character> playerCharacters = new List<Character>();
+    public List<Character> enemyCharacters = new List<Character>();
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -25,20 +25,21 @@ public class CharacterManager : MonoBehaviour {
 
     public void UpdateSelectedCharacter(Character selectedCharacter) {
         Instance.SelectedCharacter = selectedCharacter;
+
         OnSelectCharacterOnClickStart?.Invoke();
     }
 
     public void RegisterCharacter(Character character, CharacterType characterType) {
-        if (_playerCharacters.Contains(character) || _enemyCharacters.Contains(character)) {
+        if (playerCharacters.Contains(character) || enemyCharacters.Contains(character)) {
             UnregisterCharacter(character);
         }
 
         switch (characterType) {
             case CharacterType.Player:
-                _playerCharacters.Add(character);
+                playerCharacters.Add(character);
                 break;
             case CharacterType.Enemy:
-                _enemyCharacters.Add(character);
+                enemyCharacters.Add(character);
                 break;
         }
 
@@ -46,11 +47,11 @@ public class CharacterManager : MonoBehaviour {
     }
 
     public void UnregisterCharacter(Character character) {
-        if (_playerCharacters.Contains(character)) {
-            _playerCharacters.Remove(character);
+        if (playerCharacters.Contains(character)) {
+            playerCharacters.Remove(character);
         }
-        else if (_enemyCharacters.Contains(character)) {
-            _enemyCharacters.Remove(character);
+        else if (enemyCharacters.Contains(character)) {
+            enemyCharacters.Remove(character);
         }
 
         OnCharacterRegistryChange?.Invoke();

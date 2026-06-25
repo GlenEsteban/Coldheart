@@ -96,9 +96,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""OnMouseClick"",
                     ""type"": ""Button"",
                     ""id"": ""2d682d72-40b3-475d-b050-7c1103dcdca7"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Press"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 }
             ],
