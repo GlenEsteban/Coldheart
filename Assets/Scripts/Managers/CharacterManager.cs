@@ -12,8 +12,8 @@ public class CharacterManager : MonoBehaviour {
     public IReadOnlyList<Character> PlayerCharacters => playerCharacters;
     public IReadOnlyList<Character> EnemyCharacters => playerCharacters;
 
-    private List<Character> playerCharacters = new List<Character>();
-    private List<Character> enemyCharacters = new List<Character>();
+    [SerializeField] private List<Character> playerCharacters = new List<Character>();
+    [SerializeField] private List<Character> enemyCharacters = new List<Character>();
 
     public void SetSelectedCharacter(Character selectedCharacter) {
         Instance.SelectedCharacter = selectedCharacter;
