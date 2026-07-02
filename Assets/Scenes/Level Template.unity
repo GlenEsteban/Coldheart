@@ -852,8 +852,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 174718642}
-  - {fileID: 219729740}
   - {fileID: 1112567898}
+  - {fileID: 219729740}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &138425184
@@ -1664,7 +1664,7 @@ GameObject:
   - component: {fileID: 219729742}
   - component: {fileID: 219729743}
   m_Layer: 0
-  m_Name: Player Input Manager
+  m_Name: Player Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2607,7 +2607,7 @@ GameObject:
   - component: {fileID: 369065359}
   - component: {fileID: 369065358}
   - component: {fileID: 369065361}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Abilities Radial Display
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3345,7 +3345,6 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
-  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3471,22 +3470,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 565721484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &519420033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56666c5a40171f54783dd416a44f42bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.Physics2DRaycaster
-  m_EventMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_MaxRayIntersections: 0
 --- !u!1 &537859569
 GameObject:
   m_ObjectHideFlags: 0
@@ -5213,7 +5196,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 737487614}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5247,7 +5230,7 @@ GameObject:
   m_Component:
   - component: {fileID: 757727893}
   - component: {fileID: 757727894}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ability Buttons UI Animator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6752,7 +6735,7 @@ GameObject:
   - component: {fileID: 1034844870}
   - component: {fileID: 1034844872}
   - component: {fileID: 1034844871}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shadow Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7272,8 +7255,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SelectedCharacter>k__BackingField: {fileID: 0}
-  playerCharacters: []
-  enemyCharacters: []
 --- !u!1 &1160557703
 GameObject:
   m_ObjectHideFlags: 0
@@ -8764,8 +8745,9 @@ GameObject:
   - component: {fileID: 1408008212}
   - component: {fileID: 6831237033029955063}
   - component: {fileID: 6831237033029955059}
+  - component: {fileID: 6831237033029955064}
   - component: {fileID: 6831237033029955062}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Red the Wizard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10005,7 +9987,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1702824417}
   - component: {fileID: 1702824418}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Colliders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12230,7 +12212,7 @@ GameObject:
   - component: {fileID: 2067225850}
   - component: {fileID: 2067225849}
   - component: {fileID: 2067225851}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Body Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12854,7 +12836,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5196426750612757208}
   - component: {fileID: 4737752067292635011}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12916,8 +12898,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf87bf9862f5dbe418c00f9130e8b1ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Name>k__BackingField: Red the Wizard
-  <CharacterType>k__BackingField: 0
+  <characterName>k__BackingField: 
+  <characterType>k__BackingField: 0
 --- !u!114 &6831237033029955062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12930,8 +12912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29a9f0e66773c6744a7320f44564a6c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movementSpeed: 100
-  _MOVEMENTADJUSTER: 2
+  abilityType: 0
 --- !u!50 &6831237033029955063
 Rigidbody2D:
   serializedVersion: 5
@@ -12959,6 +12940,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &6831237033029955064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408008211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21fc42d1f7bb7e4c87c19bfa2eb0bc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityRunner
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

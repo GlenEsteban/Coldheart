@@ -1,11 +1,18 @@
+using System;
 using UnityEngine;
 
 public class GameStateManager : MonoBehaviour {
     public static GameStateManager Instance { get; private set; }
 
+    public event Action Transition;
+    public event Action PlayerTurn;
+    public event Action EnemyTurn;
+    public event Action GameWin;
+    public event Action GameOver;
+
     public GameState currentGameState;
 
-    private void Start() {
+    private void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
         }
@@ -15,7 +22,6 @@ public class GameStateManager : MonoBehaviour {
 
         currentGameState = GameState.Transition;
     }
-
     private void Update() {
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             ChangeGameState(GameState.Transition);
@@ -56,19 +62,29 @@ public class GameStateManager : MonoBehaviour {
                 break;
         }
     }
-
     public void RunTransition() {
-    }
+        Debug.Log("EVENT: Transition");
 
+        Transition?.Invoke();
+    }
     public void RunPlayerTurn() {
-    }
+        Debug.Log("EVENT: Player Turn");
 
+        PlayerTurn?.Invoke();
+    }
     public void RunEnemyTurn() {
-    }
+        Debug.Log("EVENT: Enemy Turn");
 
+        EnemyTurn?.Invoke();
+    }
     public void RunGameWin() {
-    }
+        Debug.Log("EVENT: Game Win");
 
-    public void RunGameOver() {     
+        GameWin?.Invoke();
+    }
+    public void RunGameOver() {    
+        Debug.Log("EVENT: Game Over");
+
+        GameOver?.Invoke();
     }
 }

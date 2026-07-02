@@ -6,14 +6,20 @@ public class CharacterManager : MonoBehaviour {
     public static CharacterManager Instance;
 
     public event Action OnCharacterRegistryChange;
-    public event Action OnSelectCharacterOnClickStart;
-    public event Action OnSelectCharacterOnClickEnd;
+    public event Action OnSelectCharacter;
 
     [field: SerializeField] public Character SelectedCharacter { get; private set; }
+    public IReadOnlyList<Character> PlayerCharacters => playerCharacters;
+    public IReadOnlyList<Character> EnemyCharacters => playerCharacters;
 
-    public List<Character> playerCharacters = new List<Character>();
-    public List<Character> enemyCharacters = new List<Character>();
+    private List<Character> playerCharacters = new List<Character>();
+    private List<Character> enemyCharacters = new List<Character>();
 
+    public void SetSelectedCharacter(Character selectedCharacter) {
+        Instance.SelectedCharacter = selectedCharacter;
+
+        OnSelectCharacter?.Invoke();
+    }
     void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
@@ -22,13 +28,6 @@ public class CharacterManager : MonoBehaviour {
             Instance = this;
         }
     }
-
-    public void UpdateSelectedCharacter(Character selectedCharacter) {
-        Instance.SelectedCharacter = selectedCharacter;
-
-        OnSelectCharacterOnClickStart?.Invoke();
-    }
-
     public void RegisterCharacter(Character character, CharacterType characterType) {
         if (playerCharacters.Contains(character) || enemyCharacters.Contains(character)) {
             UnregisterCharacter(character);
@@ -45,7 +44,6 @@ public class CharacterManager : MonoBehaviour {
 
         OnCharacterRegistryChange?.Invoke();
     }
-
     public void UnregisterCharacter(Character character) {
         if (playerCharacters.Contains(character)) {
             playerCharacters.Remove(character);
