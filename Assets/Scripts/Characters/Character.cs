@@ -3,6 +3,7 @@ using UnityEngine;
 public class Character : MonoBehaviour {
     [field: SerializeField, ReadOnly] public string characterName { get; private set; }
     [field: SerializeField, ReadOnly] public CharacterType characterType { get; private set; }
+
     private void SetCharacterType() {
         switch (LayerMask.LayerToName(gameObject.layer)) {
             case "Player":

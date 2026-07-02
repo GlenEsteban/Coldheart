@@ -82,7 +82,10 @@ public class PlayerController : MonoBehaviour{
             else if (selectedPlayerCharacter != CharacterManager.Instance.SelectedCharacter || collidersOnClickEnd == null) {
                 // Call AbilityRunner method to execute active ability when releasing aim 
                 selectedPlayerCharacter = CharacterManager.Instance.SelectedCharacter;
-                AbilityRunner characterAbilityRunner = selectedPlayerCharacter.GetComponent<AbilityRunner>();
+
+                if (selectedPlayerCharacter == null) { return; }
+
+                ActiveAbilityRunner characterAbilityRunner = selectedPlayerCharacter.GetComponent<ActiveAbilityRunner>();
 
                 if (characterAbilityRunner == null) { return; }
 
