@@ -32,7 +32,11 @@ public class PlayerController : MonoBehaviour{
     private void Update() {
         UpdateMousePosition();
 
-        UpdateAimVector();
+        if (CharacterManager.Instance.SelectedCharacter != null) {
+            UpdateAimVector();
+
+            UpdateAimVectorIndicator();
+        }
     }
     private void UpdateMousePosition() {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
@@ -48,9 +52,21 @@ public class PlayerController : MonoBehaviour{
             aimVector = positionOnClickStart - positionOnClickEnd;
         }
     }
-    public void OnMouseClick(InputAction.CallbackContext context) {
-        Character selectedPlayerCharacter;
+    private void UpdateAimVectorIndicator() {
+        AimVectorIndicator aimVectorIndicator = CharacterManager.Instance.SelectedCharacter.AimVectorIndicator;
 
+        if (aimVectorIndicator == null) { return; }
+
+        if (isEngagingControls) {
+            aimVectorIndicator.Display();
+
+            aimVectorIndicator.SetAimVector(aimVector);
+        }
+        else {
+            aimVectorIndicator.Hide();
+        }
+    }
+    public void OnMouseClick(InputAction.CallbackContext context) {
         if (context.started) {
             isEngagingControls = true;
 
@@ -59,9 +75,9 @@ public class PlayerController : MonoBehaviour{
             Collider2D[] collidersOnClickStart = Physics2D.OverlapPointAll(currentMouseWorldPosition);
 
             if (collidersOnClickStart != null) {
-                selectedPlayerCharacter = CheckForPlayerCharacter(collidersOnClickStart);
+                Character playerCharacterOnClickStart = CheckForPlayerCharacter(collidersOnClickStart);
 
-                CharacterManager.Instance.SetSelectedCharacter(selectedPlayerCharacter);
+                CharacterManager.Instance.SetSelectedCharacter(playerCharacterOnClickStart);
             }
             else {
                 CharacterManager.Instance.SetSelectedCharacter(null);
@@ -74,18 +90,18 @@ public class PlayerController : MonoBehaviour{
 
             Collider2D[] collidersOnClickEnd = Physics2D.OverlapPointAll(currentMouseWorldPosition);
 
-            selectedPlayerCharacter = CheckForPlayerCharacter(collidersOnClickEnd);
+            Character playerCharacterOnClickEnd = CheckForPlayerCharacter(collidersOnClickEnd);
 
-            if (selectedPlayerCharacter == CharacterManager.Instance.SelectedCharacter) {
+            if (playerCharacterOnClickEnd == CharacterManager.Instance.SelectedCharacter) {
                 // Display abilities when clicking on a character
             }
-            else if (selectedPlayerCharacter != CharacterManager.Instance.SelectedCharacter || collidersOnClickEnd == null) {
+            else if (playerCharacterOnClickEnd != CharacterManager.Instance.SelectedCharacter || collidersOnClickEnd == null) {
                 // Call AbilityRunner method to execute active ability when releasing aim 
-                selectedPlayerCharacter = CharacterManager.Instance.SelectedCharacter;
+                playerCharacterOnClickEnd = CharacterManager.Instance.SelectedCharacter;
 
-                if (selectedPlayerCharacter == null) { return; }
+                if (playerCharacterOnClickEnd == null) { return; }
 
-                ActiveAbilityRunner characterAbilityRunner = selectedPlayerCharacter.GetComponent<ActiveAbilityRunner>();
+                ActiveAbilityRunner characterAbilityRunner = playerCharacterOnClickEnd.GetComponent<ActiveAbilityRunner>();
 
                 if (characterAbilityRunner == null) { return; }
 
@@ -99,7 +115,7 @@ public class PlayerController : MonoBehaviour{
 
             Character selectedCharacter = collider.transform.GetComponentInParent<Character>();
 
-            if (selectedCharacter != null && selectedCharacter.characterType == CharacterType.Player) {
+            if (selectedCharacter != null && selectedCharacter.CharacterType == CharacterType.Player) {
                 return selectedCharacter;
             }
         }

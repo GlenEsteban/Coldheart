@@ -9,8 +9,6 @@ public class MovementAbility : ActiveAbility {
         movement = GetComponent<Movement>();
     }
     public override void Execute(Vector2 aimVector) {
-        Debug.Log("Executing movement " + aimVector);
-
         movement.Move(aimVector);
     }
 }
