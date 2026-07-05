@@ -1,17 +1,21 @@
 using System;
+using UnityEditor.AnimatedValues;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour{
     private PlayerInputActions playerInputActions;
     private Camera mainCam;
 
     private Vector2 currentMouseWorldPosition;
-    private Vector2 positionOnClickStart;
-    private Vector2 positionOnClickEnd;
+    private Vector2 positionOnPrimaryActionStart;
     private Vector2 aimVector;
 
-    private bool isEngagingControls = false;
+    private bool isEngagingPrimaryAction = false;
+    private bool isEngagingSecondaryAction = false;
+
+    private Character selectedPlayerCharacter;
 
     private void Awake() {
         playerInputActions = new PlayerInputActions();
@@ -20,23 +24,25 @@ public class PlayerController : MonoBehaviour{
     private void OnEnable() {
         playerInputActions.Enable();
 
-        playerInputActions.Player.OnMouseClick.started += OnMouseClick;
-        playerInputActions.Player.OnMouseClick.canceled += OnMouseClick;
+        playerInputActions.Player.OnPrimaryAction.started += OnPrimaryAction;
+        playerInputActions.Player.OnPrimaryAction.canceled += OnPrimaryAction;
+        playerInputActions.Player.OnSecondaryAction.started += OnSecondaryAction;
+        playerInputActions.Player.OnSecondaryAction.canceled += OnSecondaryAction;
     }
     private void OnDisable() {
         playerInputActions.Disable();
 
-        playerInputActions.Player.OnMouseClick.started -= OnMouseClick;
-        playerInputActions.Player.OnMouseClick.canceled -= OnMouseClick;
+        playerInputActions.Player.OnPrimaryAction.started -= OnPrimaryAction;
+        playerInputActions.Player.OnPrimaryAction.canceled -= OnPrimaryAction;
+        playerInputActions.Player.OnSecondaryAction.started -= OnSecondaryAction;
+        playerInputActions.Player.OnSecondaryAction.canceled -= OnSecondaryAction;
     }
     private void Update() {
         UpdateMousePosition();
 
-        if (CharacterManager.Instance.SelectedCharacter != null) {
-            UpdateAimVector();
+        if (selectedPlayerCharacter == null) { return; }
 
-            UpdateAimVectorIndicator();
-        }
+        UpdateAimVector();
     }
     private void UpdateMousePosition() {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
@@ -45,19 +51,21 @@ public class PlayerController : MonoBehaviour{
         currentMouseWorldPosition = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
     }
     private void UpdateAimVector() {
-        if (isEngagingControls) {
-            aimVector = positionOnClickStart - currentMouseWorldPosition;
+        // Calculate aim vector while engaging with primary action input interaction
+        if (isEngagingPrimaryAction) {
+            aimVector = positionOnPrimaryActionStart - currentMouseWorldPosition;
+
+            if (isEngagingSecondaryAction) {
+                aimVector *= -1;
+            }
         }
-        else {
-            aimVector = positionOnClickStart - positionOnClickEnd;
-        }
-    }
-    private void UpdateAimVectorIndicator() {
-        AimVectorIndicator aimVectorIndicator = CharacterManager.Instance.SelectedCharacter.AimVectorIndicator;
+
+        // Update aimVectorIndicator based on input interactions
+        AimVectorIndicator aimVectorIndicator = selectedPlayerCharacter.AimVectorIndicator;
 
         if (aimVectorIndicator == null) { return; }
 
-        if (isEngagingControls) {
+        if (isEngagingPrimaryAction) {
             aimVectorIndicator.Display();
 
             aimVectorIndicator.SetAimVector(aimVector);
@@ -66,50 +74,48 @@ public class PlayerController : MonoBehaviour{
             aimVectorIndicator.Hide();
         }
     }
-    public void OnMouseClick(InputAction.CallbackContext context) {
+    public void OnPrimaryAction(InputAction.CallbackContext context) {
         if (context.started) {
-            isEngagingControls = true;
+            isEngagingPrimaryAction = true;
 
-            positionOnClickStart = currentMouseWorldPosition;
+            positionOnPrimaryActionStart = currentMouseWorldPosition;
 
-            Collider2D[] collidersOnClickStart = Physics2D.OverlapPointAll(currentMouseWorldPosition);
+            // Check for player characters and update selected character
+            Collider2D[] collidersOnPrimaryActionStart = Physics2D.OverlapPointAll(positionOnPrimaryActionStart);
 
-            if (collidersOnClickStart != null) {
-                Character playerCharacterOnClickStart = CheckForPlayerCharacter(collidersOnClickStart);
+            if (collidersOnPrimaryActionStart != null) {
+                selectedPlayerCharacter = CheckForPlayerCharacter(collidersOnPrimaryActionStart); // can be null
 
-                CharacterManager.Instance.SetSelectedCharacter(playerCharacterOnClickStart);
+                CharacterManager.Instance.SetSelectedCharacter(selectedPlayerCharacter); 
             }
             else {
                 CharacterManager.Instance.SetSelectedCharacter(null);
             }
         }
         else if (context.canceled) {
-            isEngagingControls = false;
+            isEngagingPrimaryAction = false;
 
-            positionOnClickEnd = currentMouseWorldPosition;
+            // Check for player characters on input canceled/released
+            Collider2D[] collidersOnPrimaryActionEnd = Physics2D.OverlapPointAll(currentMouseWorldPosition);
 
-            Collider2D[] collidersOnClickEnd = Physics2D.OverlapPointAll(currentMouseWorldPosition);
+            Character playerCharacterOnPrimaryActionEnd = CheckForPlayerCharacter(collidersOnPrimaryActionEnd);
 
-            Character playerCharacterOnClickEnd = CheckForPlayerCharacter(collidersOnClickEnd);
-
-            if (playerCharacterOnClickEnd == CharacterManager.Instance.SelectedCharacter) {
+            if (playerCharacterOnPrimaryActionEnd == selectedPlayerCharacter) {
                 // Display abilities when clicking on a character
+
             }
-            else if (playerCharacterOnClickEnd != CharacterManager.Instance.SelectedCharacter || collidersOnClickEnd == null) {
-                // Call AbilityRunner method to execute active ability when releasing aim 
-                playerCharacterOnClickEnd = CharacterManager.Instance.SelectedCharacter;
+            else if (selectedPlayerCharacter != null && 
+                playerCharacterOnPrimaryActionEnd != selectedPlayerCharacter || collidersOnPrimaryActionEnd == null) {
+                // Execute selected character's active ability
+                ActiveAbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.ActiveAbilityRunner;
 
-                if (playerCharacterOnClickEnd == null) { return; }
+                if (selectedCharacterAbilityRunner == null) { return; }
 
-                ActiveAbilityRunner characterAbilityRunner = playerCharacterOnClickEnd.GetComponent<ActiveAbilityRunner>();
-
-                if (characterAbilityRunner == null) { return; }
-
-                characterAbilityRunner.ExecuteActiveAbility(aimVector);
+                selectedCharacterAbilityRunner.ExecuteActiveAbility(aimVector);
             }
         }
     }
-    public Character CheckForPlayerCharacter(Collider2D[] colliderArrayToCheck) {
+    private Character CheckForPlayerCharacter(Collider2D[] colliderArrayToCheck) {
         foreach (Collider2D collider in colliderArrayToCheck) {
             if (collider.isTrigger) { continue; }
 
@@ -122,17 +128,9 @@ public class PlayerController : MonoBehaviour{
 
         return null;
     }
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.white;
-
-        if (!Application.isPlaying) { return; }
-
-        Character selectedCharacter = CharacterManager.Instance.SelectedCharacter;
-
-        if (selectedCharacter == null) { return; }
-
-        Vector2 selectedCharacterPosition = selectedCharacter.transform.position;
-
-        Gizmos.DrawLine(selectedCharacterPosition, selectedCharacterPosition + aimVector);
+    public void OnSecondaryAction(InputAction.CallbackContext context) {
+        if (context.canceled) {
+            isEngagingSecondaryAction = !isEngagingSecondaryAction;
+        }
     }
 }

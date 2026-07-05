@@ -7,9 +7,18 @@
             "id": "6bd968d0-13e6-4154-acfa-8bfea1d89d32",
             "actions": [
                 {
-                    "name": "OnMouseClick",
+                    "name": "OnPrimaryAction",
                     "type": "Button",
                     "id": "2d682d72-40b3-475d-b050-7c1103dcdca7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OnSecondaryAction",
+                    "type": "Button",
+                    "id": "47d75632-f155-4bb4-b6d9-34ccc60a92fb",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -24,18 +33,40 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "OnMouseClick",
+                    "action": "OnPrimaryAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "360c149b-b70a-44cb-8dad-287f3614e908",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OnSecondaryAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1e85552b-27bc-4a0f-8ea9-f6e9a076d6f1",
+                    "path": "<Touchscreen>/touch1/tap",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";XR",
+                    "action": "OnSecondaryAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "b9d9d703-e4d6-4e0a-945e-4da3d1005139",
-                    "path": "<Touchscreen>/Press",
+                    "path": "<Touchscreen>/touch0/tap",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "OnMouseClick",
+                    "action": "OnPrimaryAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

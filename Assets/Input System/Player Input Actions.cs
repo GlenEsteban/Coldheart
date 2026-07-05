@@ -93,9 +93,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             ""id"": ""6bd968d0-13e6-4154-acfa-8bfea1d89d32"",
             ""actions"": [
                 {
-                    ""name"": ""OnMouseClick"",
+                    ""name"": ""OnPrimaryAction"",
                     ""type"": ""Button"",
                     ""id"": ""2d682d72-40b3-475d-b050-7c1103dcdca7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OnSecondaryAction"",
+                    ""type"": ""Button"",
+                    ""id"": ""47d75632-f155-4bb4-b6d9-34ccc60a92fb"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -110,18 +119,40 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""OnMouseClick"",
+                    ""action"": ""OnPrimaryAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""360c149b-b70a-44cb-8dad-287f3614e908"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""OnSecondaryAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1e85552b-27bc-4a0f-8ea9-f6e9a076d6f1"",
+                    ""path"": ""<Touchscreen>/touch1/tap"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";XR"",
+                    ""action"": ""OnSecondaryAction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
                     ""id"": ""b9d9d703-e4d6-4e0a-945e-4da3d1005139"",
-                    ""path"": ""<Touchscreen>/Press"",
+                    ""path"": ""<Touchscreen>/touch0/tap"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""OnMouseClick"",
+                    ""action"": ""OnPrimaryAction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -709,7 +740,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
 }");
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
-        m_Player_OnMouseClick = m_Player.FindAction("OnMouseClick", throwIfNotFound: true);
+        m_Player_OnPrimaryAction = m_Player.FindAction("OnPrimaryAction", throwIfNotFound: true);
+        m_Player_OnSecondaryAction = m_Player.FindAction("OnSecondaryAction", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -803,7 +835,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     // Player
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
-    private readonly InputAction m_Player_OnMouseClick;
+    private readonly InputAction m_Player_OnPrimaryAction;
+    private readonly InputAction m_Player_OnSecondaryAction;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -816,9 +849,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public PlayerActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "Player/OnMouseClick".
+        /// Provides access to the underlying input action "Player/OnPrimaryAction".
         /// </summary>
-        public InputAction @OnMouseClick => m_Wrapper.m_Player_OnMouseClick;
+        public InputAction @OnPrimaryAction => m_Wrapper.m_Player_OnPrimaryAction;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/OnSecondaryAction".
+        /// </summary>
+        public InputAction @OnSecondaryAction => m_Wrapper.m_Player_OnSecondaryAction;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -845,9 +882,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_PlayerActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_PlayerActionsCallbackInterfaces.Add(instance);
-            @OnMouseClick.started += instance.OnOnMouseClick;
-            @OnMouseClick.performed += instance.OnOnMouseClick;
-            @OnMouseClick.canceled += instance.OnOnMouseClick;
+            @OnPrimaryAction.started += instance.OnOnPrimaryAction;
+            @OnPrimaryAction.performed += instance.OnOnPrimaryAction;
+            @OnPrimaryAction.canceled += instance.OnOnPrimaryAction;
+            @OnSecondaryAction.started += instance.OnOnSecondaryAction;
+            @OnSecondaryAction.performed += instance.OnOnSecondaryAction;
+            @OnSecondaryAction.canceled += instance.OnOnSecondaryAction;
         }
 
         /// <summary>
@@ -859,9 +899,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="PlayerActions" />
         private void UnregisterCallbacks(IPlayerActions instance)
         {
-            @OnMouseClick.started -= instance.OnOnMouseClick;
-            @OnMouseClick.performed -= instance.OnOnMouseClick;
-            @OnMouseClick.canceled -= instance.OnOnMouseClick;
+            @OnPrimaryAction.started -= instance.OnOnPrimaryAction;
+            @OnPrimaryAction.performed -= instance.OnOnPrimaryAction;
+            @OnPrimaryAction.canceled -= instance.OnOnPrimaryAction;
+            @OnSecondaryAction.started -= instance.OnOnSecondaryAction;
+            @OnSecondaryAction.performed -= instance.OnOnSecondaryAction;
+            @OnSecondaryAction.canceled -= instance.OnOnSecondaryAction;
         }
 
         /// <summary>
@@ -1163,12 +1206,19 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     public interface IPlayerActions
     {
         /// <summary>
-        /// Method invoked when associated input action "OnMouseClick" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "OnPrimaryAction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnOnMouseClick(InputAction.CallbackContext context);
+        void OnOnPrimaryAction(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "OnSecondaryAction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOnSecondaryAction(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

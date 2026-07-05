@@ -6,6 +6,8 @@ public class MovementAbility : ActiveAbility {
     private Movement movement;
 
     private void Awake() {
+        base.Awake();
+
         movement = GetComponent<Movement>();
     }
     public override void Execute(Vector2 aimVector) {

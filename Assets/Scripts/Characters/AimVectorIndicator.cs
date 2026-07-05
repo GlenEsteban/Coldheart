@@ -18,8 +18,6 @@ public class AimVectorIndicator : MonoBehaviour {
     private void UpdateIndicatorRotation() {
         float angle = Mathf.Atan2(aimVector.y, aimVector.x) * Mathf.Rad2Deg;
 
-        Debug.Log(aimVector + " " + angle);
-
         IndicatorRectTransform.rotation = Quaternion.Euler(0f, 0f, angle + angleOffset);
     }    
     private void UpdateIndicatorScale() {
