@@ -1,11 +1,11 @@
 using UnityEngine;
 
 public class MovementAbility : ActiveAbility {
-    [SerializeField] private AbilityType abilityType;
+    [field: SerializeField] public AbilityType AbilityType { get; private set; }
 
     private Movement movement;
 
-    private void Awake() {
+    protected override void Awake() {
         base.Awake();
 
         movement = GetComponent<Movement>();

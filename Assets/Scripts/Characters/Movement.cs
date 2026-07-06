@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class Movement : MonoBehaviour {
-    [SerializeField] private float moveSpeed = 100f;
+    private const float MOVEMENT_SPEED_ADJUSTMENT_CONSTANT = 250f;
 
     private Rigidbody2D rb;
 
@@ -9,9 +9,10 @@ public class Movement : MonoBehaviour {
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
+
         weightCompensationScalar = rb.mass;
     }
     public void Move(Vector2 forceVector) {
-        rb.AddForce(forceVector * moveSpeed * weightCompensationScalar);
+        rb.AddForce(forceVector * MOVEMENT_SPEED_ADJUSTMENT_CONSTANT * weightCompensationScalar);
     }
 }

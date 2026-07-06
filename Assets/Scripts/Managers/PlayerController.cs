@@ -7,16 +7,21 @@ using UnityEngine.UIElements;
 public class PlayerController : MonoBehaviour{
     private PlayerInputActions playerInputActions;
     private Camera mainCam;
+    private Character selectedPlayerCharacter;
 
     private Vector2 currentMouseWorldPosition;
-    private Vector2 positionOnPrimaryActionStart;
     private Vector2 aimVector;
 
     private bool isEngagingPrimaryAction = false;
-    private bool isEngagingSecondaryAction = false;
+    private bool isInvertingAimVector = false;
 
-    private Character selectedPlayerCharacter;
+    private bool IsHoveringOverSelectedPlayer() {
+        if (selectedPlayerCharacter == null) { return false; }
 
+        bool isHoveringOverSelectedPlayer = selectedPlayerCharacter.HitCollider.OverlapPoint(currentMouseWorldPosition);
+
+        return isHoveringOverSelectedPlayer;
+    }
     private void Awake() {
         playerInputActions = new PlayerInputActions();
         mainCam = Camera.main;
@@ -43,6 +48,8 @@ public class PlayerController : MonoBehaviour{
         if (selectedPlayerCharacter == null) { return; }
 
         UpdateAimVector();
+
+        selectedPlayerCharacter.ActiveAbilityRunner.SetAimVector(aimVector);
     }
     private void UpdateMousePosition() {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
@@ -53,69 +60,53 @@ public class PlayerController : MonoBehaviour{
     private void UpdateAimVector() {
         // Calculate aim vector while engaging with primary action input interaction
         if (isEngagingPrimaryAction) {
-            aimVector = positionOnPrimaryActionStart - currentMouseWorldPosition;
+            aimVector = (Vector2) selectedPlayerCharacter.transform.position - currentMouseWorldPosition;
 
-            if (isEngagingSecondaryAction) {
+            // Invert aiming mechanic
+            if (isInvertingAimVector) {
                 aimVector *= -1;
             }
         }
 
-        // Update aimVectorIndicator based on input interactions
-        AimVectorIndicator aimVectorIndicator = selectedPlayerCharacter.AimVectorIndicator;
-
-        if (aimVectorIndicator == null) { return; }
-
-        if (isEngagingPrimaryAction) {
-            aimVectorIndicator.Display();
-
-            aimVectorIndicator.SetAimVector(aimVector);
-        }
-        else {
-            aimVectorIndicator.Hide();
+        // Nullify aim vector if hovering over selected charcater
+        if (IsHoveringOverSelectedPlayer()) {
+            aimVector = Vector2.zero;
         }
     }
     public void OnPrimaryAction(InputAction.CallbackContext context) {
         if (context.started) {
             isEngagingPrimaryAction = true;
 
-            positionOnPrimaryActionStart = currentMouseWorldPosition;
+            Vector2 positionOnPrimaryActionStart = currentMouseWorldPosition;    
 
-            // Check for player characters and update selected character
+            // Check for player characters on input start and sets Character Manager seleceted character
             Collider2D[] collidersOnPrimaryActionStart = Physics2D.OverlapPointAll(positionOnPrimaryActionStart);
 
-            if (collidersOnPrimaryActionStart != null) {
-                selectedPlayerCharacter = CheckForPlayerCharacter(collidersOnPrimaryActionStart); // can be null
+            selectedPlayerCharacter = CheckForPlayerCharacter(collidersOnPrimaryActionStart); 
 
-                CharacterManager.Instance.SetSelectedCharacter(selectedPlayerCharacter); 
-            }
-            else {
-                CharacterManager.Instance.SetSelectedCharacter(null);
-            }
+            CharacterManager.Instance.SetSelectedCharacter(selectedPlayerCharacter); // sets to null if none are found
         }
         else if (context.canceled) {
             isEngagingPrimaryAction = false;
 
-            // Check for player characters on input canceled/released
-            Collider2D[] collidersOnPrimaryActionEnd = Physics2D.OverlapPointAll(currentMouseWorldPosition);
-
-            Character playerCharacterOnPrimaryActionEnd = CheckForPlayerCharacter(collidersOnPrimaryActionEnd);
-
-            if (playerCharacterOnPrimaryActionEnd == selectedPlayerCharacter) {
+            if (IsHoveringOverSelectedPlayer()) {
                 // Display abilities when clicking on a character
-
             }
-            else if (selectedPlayerCharacter != null && 
-                playerCharacterOnPrimaryActionEnd != selectedPlayerCharacter || collidersOnPrimaryActionEnd == null) {
+            else if (selectedPlayerCharacter != null) {
                 // Execute selected character's active ability
                 ActiveAbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.ActiveAbilityRunner;
 
                 if (selectedCharacterAbilityRunner == null) { return; }
 
-                selectedCharacterAbilityRunner.ExecuteActiveAbility(aimVector);
+                selectedCharacterAbilityRunner.ExecuteActiveAbility();
             }
+
+            aimVector = Vector2.zero;
         }
     }
     private Character CheckForPlayerCharacter(Collider2D[] colliderArrayToCheck) {
+        if (colliderArrayToCheck == null) { return null; }
+
         foreach (Collider2D collider in colliderArrayToCheck) {
             if (collider.isTrigger) { continue; }
 
@@ -130,7 +121,7 @@ public class PlayerController : MonoBehaviour{
     }
     public void OnSecondaryAction(InputAction.CallbackContext context) {
         if (context.canceled) {
-            isEngagingSecondaryAction = !isEngagingSecondaryAction;
+            isInvertingAimVector = !isInvertingAimVector;
         }
     }
 }
