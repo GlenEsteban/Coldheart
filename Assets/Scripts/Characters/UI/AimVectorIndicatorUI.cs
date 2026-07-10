@@ -1,23 +1,22 @@
-using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 public class AimVectorIndicatorUI : MonoBehaviour {
     [SerializeField] private float angleOffset = -90f;
     [SerializeField] private float indicatorWidth = -0.25f;
 
-    private ActiveAbilityRunner activeAbilityRunner;
+    private AbilityRunner abilityRunner;
     private RectTransform indicatorRectTransform;
     private SpriteRenderer indicatorSpriteRenderer;
 
     private Vector2 aimVector;
 
     private void Awake() {
-        activeAbilityRunner = GetComponentInParent<ActiveAbilityRunner>();
+        abilityRunner = GetComponentInParent<AbilityRunner>();
         indicatorRectTransform = GetComponent<RectTransform>();
         indicatorSpriteRenderer = GetComponent<SpriteRenderer>();
     }
     void Update() {
-        aimVector = activeAbilityRunner.AimVector;
+        aimVector = abilityRunner.AimVector;
 
         UpdateVisibility();
 

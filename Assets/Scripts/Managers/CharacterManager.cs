@@ -9,8 +9,9 @@ public class CharacterManager : MonoBehaviour {
     public event Action OnSelectCharacter;
 
     [field: SerializeField] public Character SelectedCharacter { get; private set; }
-    public IReadOnlyList<Character> PlayerCharacters => playerCharacters;
-    public IReadOnlyList<Character> EnemyCharacters => playerCharacters;
+
+    public List<Character> PlayerCharacters => playerCharacters;
+    public List<Character> EnemyCharacters => enemyCharacters;
 
     [SerializeField] private List<Character> playerCharacters = new List<Character>();
     [SerializeField] private List<Character> enemyCharacters = new List<Character>();

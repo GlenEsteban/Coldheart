@@ -1,8 +1,7 @@
 using System;
-using UnityEditor.AnimatedValues;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour{
     private PlayerInputActions playerInputActions;
@@ -13,7 +12,6 @@ public class PlayerController : MonoBehaviour{
     private Vector2 aimVector;
 
     private bool isEngagingPrimaryAction = false;
-    private bool isInvertingAimVector = false;
 
     private bool IsHoveringOverSelectedPlayer() {
         if (selectedPlayerCharacter == null) { return false; }
@@ -22,6 +20,25 @@ public class PlayerController : MonoBehaviour{
 
         return isHoveringOverSelectedPlayer;
     }
+    private bool IsHoveringOverEnemy() {
+        List<Character> enemies = CharacterManager.Instance.EnemyCharacters;
+
+        foreach (Character enemy in enemies) {
+            bool isHoveringOverEnemy = enemy.HitCollider.OverlapPoint(currentMouseWorldPosition);
+
+            if (isHoveringOverEnemy) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsAimingAtEnemyInRange() {
+
+
+        return false;
+    }
     private void Awake() {
         playerInputActions = new PlayerInputActions();
         mainCam = Camera.main;
@@ -29,18 +46,18 @@ public class PlayerController : MonoBehaviour{
     private void OnEnable() {
         playerInputActions.Enable();
 
-        playerInputActions.Player.OnPrimaryAction.started += OnPrimaryAction;
-        playerInputActions.Player.OnPrimaryAction.canceled += OnPrimaryAction;
-        playerInputActions.Player.OnSecondaryAction.started += OnSecondaryAction;
-        playerInputActions.Player.OnSecondaryAction.canceled += OnSecondaryAction;
+        playerInputActions.Player.MoveOrAttack.started += OnPrimaryAction;
+        playerInputActions.Player.MoveOrAttack.canceled += OnPrimaryAction;
+        playerInputActions.Player.Guard.performed += OnSecondaryAction;
+        playerInputActions.Player.Rest.performed += OnTertiaryAction;
     }
     private void OnDisable() {
         playerInputActions.Disable();
 
-        playerInputActions.Player.OnPrimaryAction.started -= OnPrimaryAction;
-        playerInputActions.Player.OnPrimaryAction.canceled -= OnPrimaryAction;
-        playerInputActions.Player.OnSecondaryAction.started -= OnSecondaryAction;
-        playerInputActions.Player.OnSecondaryAction.canceled -= OnSecondaryAction;
+        playerInputActions.Player.MoveOrAttack.started -= OnSecondaryAction;
+        playerInputActions.Player.MoveOrAttack.canceled -= OnSecondaryAction;
+        playerInputActions.Player.Guard.performed -= OnSecondaryAction;
+        playerInputActions.Player.Rest.performed -= OnTertiaryAction;
     }
     private void Update() {
         UpdateMousePosition();
@@ -49,7 +66,7 @@ public class PlayerController : MonoBehaviour{
 
         UpdateAimVector();
 
-        selectedPlayerCharacter.ActiveAbilityRunner.SetAimVector(aimVector);
+        selectedPlayerCharacter.AbilityRunner.SetAimVector(aimVector);
     }
     private void UpdateMousePosition() {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
@@ -60,12 +77,7 @@ public class PlayerController : MonoBehaviour{
     private void UpdateAimVector() {
         // Calculate aim vector while engaging with primary action input interaction
         if (isEngagingPrimaryAction) {
-            aimVector = (Vector2) selectedPlayerCharacter.transform.position - currentMouseWorldPosition;
-
-            // Invert aiming mechanic
-            if (isInvertingAimVector) {
-                aimVector *= -1;
-            }
+            aimVector = currentMouseWorldPosition - (Vector2) selectedPlayerCharacter.transform.position;
         }
 
         // Nullify aim vector if hovering over selected charcater
@@ -77,10 +89,8 @@ public class PlayerController : MonoBehaviour{
         if (context.started) {
             isEngagingPrimaryAction = true;
 
-            Vector2 positionOnPrimaryActionStart = currentMouseWorldPosition;    
-
             // Check for player characters on input start and sets Character Manager seleceted character
-            Collider2D[] collidersOnPrimaryActionStart = Physics2D.OverlapPointAll(positionOnPrimaryActionStart);
+            Collider2D[] collidersOnPrimaryActionStart = Physics2D.OverlapPointAll(currentMouseWorldPosition);
 
             selectedPlayerCharacter = CheckForPlayerCharacter(collidersOnPrimaryActionStart); 
 
@@ -89,16 +99,21 @@ public class PlayerController : MonoBehaviour{
         else if (context.canceled) {
             isEngagingPrimaryAction = false;
 
-            if (IsHoveringOverSelectedPlayer()) {
-                // Display abilities when clicking on a character
-            }
-            else if (selectedPlayerCharacter != null) {
-                // Execute selected character's active ability
-                ActiveAbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.ActiveAbilityRunner;
+            if (selectedPlayerCharacter != null) {
+                if (IsHoveringOverSelectedPlayer()) {
+                    // Display abilities when clicking on a character
+                }
+                else if (IsHoveringOverEnemy()) {
+                    Debug.Log("Attack");
+                }
+                else {
+                    // Execute selected character's active ability
+                    AbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.AbilityRunner;
 
-                if (selectedCharacterAbilityRunner == null) { return; }
+                    if (selectedCharacterAbilityRunner == null) { return; }
 
-                selectedCharacterAbilityRunner.ExecuteActiveAbility();
+                    selectedCharacterAbilityRunner.ExecuteAbilitiesOnMoveEvent();
+                }
             }
 
             aimVector = Vector2.zero;
@@ -108,7 +123,7 @@ public class PlayerController : MonoBehaviour{
         if (colliderArrayToCheck == null) { return null; }
 
         foreach (Collider2D collider in colliderArrayToCheck) {
-            if (collider.isTrigger) { continue; }
+            //if (collider.isTrigger) { continue; }
 
             Character selectedCharacter = collider.transform.GetComponentInParent<Character>();
 
@@ -120,8 +135,25 @@ public class PlayerController : MonoBehaviour{
         return null;
     }
     public void OnSecondaryAction(InputAction.CallbackContext context) {
-        if (context.canceled) {
-            isInvertingAimVector = !isInvertingAimVector;
+        if (context.performed) {            
+            if (CharacterManager.Instance.SelectedCharacter == null) { return; }
+
+            AbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.AbilityRunner;
+
+            if (selectedCharacterAbilityRunner == null) { return; }
+
+            selectedCharacterAbilityRunner.ExecuteAbilitiesOnGuardEvent();
+        }
+    }
+    public void OnTertiaryAction(InputAction.CallbackContext context) {
+        if (context.performed) {
+            if (CharacterManager.Instance.SelectedCharacter == null) { return; }
+
+            AbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.AbilityRunner;
+
+            if (selectedCharacterAbilityRunner == null) { return; }
+
+            selectedCharacterAbilityRunner.ExecuteAbilitiesOnRestEvent();
         }
     }
 }

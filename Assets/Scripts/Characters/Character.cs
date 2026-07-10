@@ -3,7 +3,7 @@ using UnityEngine;
 public class Character : MonoBehaviour {
     [field: SerializeField, ReadOnly] public string CharacterName { get; private set; }
     [field: SerializeField, ReadOnly] public CharacterType CharacterType { get; private set; }
-    [field: SerializeField] public ActiveAbilityRunner ActiveAbilityRunner { get; private set; }
+    [field: SerializeField] public AbilityRunner AbilityRunner { get; private set; }
     [field: SerializeField] public Collider2D HitCollider { get; private set; }
 
     private void SetCharacterType() {
@@ -26,7 +26,7 @@ public class Character : MonoBehaviour {
 
         SetCharacterType();
 
-        ActiveAbilityRunner = GetComponent<ActiveAbilityRunner>();
+        AbilityRunner = GetComponent<AbilityRunner>();
     }
     private void OnEnable() {
         CharacterManager.Instance.RegisterCharacter(this, CharacterType);
