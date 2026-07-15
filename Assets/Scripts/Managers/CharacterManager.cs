@@ -55,4 +55,13 @@ public class CharacterManager : MonoBehaviour {
 
         OnCharacterRegistryChange?.Invoke();
     }
+    public bool CheckIfSelectedCharacter(GameObject gameObject) {
+        Character character = gameObject.GetComponentInParent<Character>();
+        
+        if (character == null) { return false; }
+
+        bool isSelectedCharacter = character == SelectedCharacter ?  true : false;
+
+        return isSelectedCharacter;
+    }
 }

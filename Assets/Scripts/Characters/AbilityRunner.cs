@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 public class AbilityRunner : MonoBehaviour {
     // Input-based ability events
@@ -10,8 +9,11 @@ public class AbilityRunner : MonoBehaviour {
     public event Action OnRest;
 
     // Collision-based ability events
-    public event Action OnEnemyCollision;
-    public event Action OnPlayerCollision;
+    public event Action<Character> OnEnemyCollision;
+    public event Action<Character> OnPlayerCollision;
+
+    // Health-based ability events
+    public event Action<int, int> OnDamageTaken;
 
     [field: SerializeField] public Vector2 AimVector { get; private set; }
     [field: SerializeField] public float MaxAimMagnitude { get; private set; } = 5f;
@@ -36,4 +38,19 @@ public class AbilityRunner : MonoBehaviour {
     public void ExecuteAbilitiesOnRestEvent() {
         OnRest?.Invoke();
     }
+    public void ExecuteAbilitiesOnEnemyCollision(Character enemyCharacterCollided) {
+        OnEnemyCollision?.Invoke(enemyCharacterCollided);
+
+        Debug.Log(gameObject.name + " attacked " + enemyCharacterCollided.gameObject.name);
+    }
+    public void ExecuteAbilitiesOnPlayerCollision(Character playerCharacterCollided) {
+        OnPlayerCollision?.Invoke(playerCharacterCollided);
+
+        Debug.Log(gameObject.name + " helped " + playerCharacterCollided.gameObject.name);
+    }      
+    public void ExecuteAbilitiesOnDamageTaken(int currentHealth, int damageTaken) {
+        OnDamageTaken?.Invoke(currentHealth, damageTaken);
+
+        Debug.Log("damage");
+    }    
 }

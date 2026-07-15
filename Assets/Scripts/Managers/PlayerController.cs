@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour{
     private bool IsHoveringOverSelectedPlayer() {
         if (selectedPlayerCharacter == null) { return false; }
 
-        bool isHoveringOverSelectedPlayer = selectedPlayerCharacter.HitCollider.OverlapPoint(currentMouseWorldPosition);
+        bool isHoveringOverSelectedPlayer = selectedPlayerCharacter.ColliderInteractions.Collider.OverlapPoint(currentMouseWorldPosition);
 
         return isHoveringOverSelectedPlayer;
     }
@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour{
         List<Character> enemies = CharacterManager.Instance.EnemyCharacters;
 
         foreach (Character enemy in enemies) {
-            bool isHoveringOverEnemy = enemy.HitCollider.OverlapPoint(currentMouseWorldPosition);
+            bool isHoveringOverEnemy = enemy.ColliderInteractions.Collider.OverlapPoint(currentMouseWorldPosition);
 
             if (isHoveringOverEnemy) {
                 return true;
@@ -33,9 +33,7 @@ public class PlayerController : MonoBehaviour{
 
         return false;
     }
-
     private bool IsAimingAtEnemyInRange() {
-
 
         return false;
     }
@@ -102,9 +100,7 @@ public class PlayerController : MonoBehaviour{
             if (selectedPlayerCharacter != null) {
                 if (IsHoveringOverSelectedPlayer()) {
                     // Display abilities when clicking on a character
-                }
-                else if (IsHoveringOverEnemy()) {
-                    Debug.Log("Attack");
+
                 }
                 else {
                     // Execute selected character's active ability
@@ -143,6 +139,8 @@ public class PlayerController : MonoBehaviour{
             if (selectedCharacterAbilityRunner == null) { return; }
 
             selectedCharacterAbilityRunner.ExecuteAbilitiesOnGuardEvent();
+
+            Debug.Log("Guard");
         }
     }
     public void OnTertiaryAction(InputAction.CallbackContext context) {
@@ -154,6 +152,8 @@ public class PlayerController : MonoBehaviour{
             if (selectedCharacterAbilityRunner == null) { return; }
 
             selectedCharacterAbilityRunner.ExecuteAbilitiesOnRestEvent();
+
+            Debug.Log("Rest");
         }
     }
 }
