@@ -4,19 +4,19 @@ public class AimVectorIndicatorUI : MonoBehaviour {
     [SerializeField] private float angleOffset = -90f;
     [SerializeField] private float indicatorWidth = -0.25f;
 
-    private AbilityRunner abilityRunner;
+    private Actions actions;
     private RectTransform indicatorRectTransform;
     private SpriteRenderer indicatorSpriteRenderer;
 
     private Vector2 aimVector;
 
     private void Awake() {
-        abilityRunner = GetComponentInParent<AbilityRunner>();
+        actions = GetComponentInParent<Actions>();
         indicatorRectTransform = GetComponent<RectTransform>();
         indicatorSpriteRenderer = GetComponent<SpriteRenderer>();
     }
     void Update() {
-        aimVector = abilityRunner.AimVector;
+        aimVector = actions.AimVector;
 
         UpdateVisibility();
 
@@ -25,11 +25,11 @@ public class AimVectorIndicatorUI : MonoBehaviour {
         UpdateIndicatorScale();
     }
     private void UpdateVisibility() {
-        if (aimVector.magnitude <= 0) {
-            indicatorSpriteRenderer.enabled = false;
+        if (actions.IsAiming) {
+            indicatorSpriteRenderer.enabled = true;
         }
         else {
-            indicatorSpriteRenderer.enabled = true; 
+            indicatorSpriteRenderer.enabled = false; 
         }
     }
     private void UpdateIndicatorRotation() {

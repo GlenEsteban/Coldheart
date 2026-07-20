@@ -3,8 +3,9 @@ using UnityEngine;
 public class Character : MonoBehaviour {
     [field: SerializeField, ReadOnly] public string CharacterName { get; private set; }
     [field: SerializeField, ReadOnly] public CharacterType CharacterType { get; private set; }
-    [field: SerializeField] public AbilityRunner AbilityRunner { get; private set; }
     [field: SerializeField] public Health Health { get; private set; }
+    [field: SerializeField] public Actions Actions { get; private set; }
+    [field: SerializeField] public Movement Movement { get; private set; }
     [field: SerializeField] public ColliderInteractions ColliderInteractions { get; private set; }
 
     private void SetCharacterType() {
@@ -27,8 +28,9 @@ public class Character : MonoBehaviour {
 
         SetCharacterType();
 
-        AbilityRunner = GetComponent<AbilityRunner>();
         Health = GetComponent<Health>();
+        Actions = GetComponent<Actions>();
+        Movement = GetComponent<Movement>();
     }
     private void OnEnable() {
         CharacterManager.Instance.RegisterCharacter(this, CharacterType);

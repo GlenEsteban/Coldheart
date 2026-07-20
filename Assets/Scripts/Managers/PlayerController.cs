@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,7 +8,6 @@ public class PlayerController : MonoBehaviour{
     private PlayerInputActions playerInputActions;
     private Camera mainCam;
     private Character selectedPlayerCharacter;
-
     private Vector2 currentMouseWorldPosition;
     private Vector2 aimVector;
 
@@ -19,23 +19,6 @@ public class PlayerController : MonoBehaviour{
         bool isHoveringOverSelectedPlayer = selectedPlayerCharacter.ColliderInteractions.Collider.OverlapPoint(currentMouseWorldPosition);
 
         return isHoveringOverSelectedPlayer;
-    }
-    private bool IsHoveringOverEnemy() {
-        List<Character> enemies = CharacterManager.Instance.EnemyCharacters;
-
-        foreach (Character enemy in enemies) {
-            bool isHoveringOverEnemy = enemy.ColliderInteractions.Collider.OverlapPoint(currentMouseWorldPosition);
-
-            if (isHoveringOverEnemy) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    private bool IsAimingAtEnemyInRange() {
-
-        return false;
     }
     private void Awake() {
         playerInputActions = new PlayerInputActions();
@@ -64,7 +47,7 @@ public class PlayerController : MonoBehaviour{
 
         UpdateAimVector();
 
-        selectedPlayerCharacter.AbilityRunner.SetAimVector(aimVector);
+        selectedPlayerCharacter.Actions.SetAimVector(aimVector);
     }
     private void UpdateMousePosition() {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
@@ -76,6 +59,7 @@ public class PlayerController : MonoBehaviour{
         // Calculate aim vector while engaging with primary action input interaction
         if (isEngagingPrimaryAction) {
             aimVector = currentMouseWorldPosition - (Vector2) selectedPlayerCharacter.transform.position;
+            selectedPlayerCharacter.Actions.SetIsAiming(true);
         }
 
         // Nullify aim vector if hovering over selected charcater
@@ -86,8 +70,7 @@ public class PlayerController : MonoBehaviour{
     public void OnPrimaryAction(InputAction.CallbackContext context) {
         if (context.started) {
             isEngagingPrimaryAction = true;
-
-            // Check for player characters on input start and sets Character Manager seleceted character
+            
             Collider2D[] collidersOnPrimaryActionStart = Physics2D.OverlapPointAll(currentMouseWorldPosition);
 
             selectedPlayerCharacter = CheckForPlayerCharacter(collidersOnPrimaryActionStart); 
@@ -98,21 +81,21 @@ public class PlayerController : MonoBehaviour{
             isEngagingPrimaryAction = false;
 
             if (selectedPlayerCharacter != null) {
+
+                selectedPlayerCharacter.Actions.SetIsAiming(false);
+
                 if (IsHoveringOverSelectedPlayer()) {
                     // Display abilities when clicking on a character
 
                 }
                 else {
-                    // Execute selected character's active ability
-                    AbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.AbilityRunner;
+                    Actions selectedCharacterActions = CharacterManager.Instance.SelectedCharacter.Actions;
 
-                    if (selectedCharacterAbilityRunner == null) { return; }
+                    if (selectedCharacterActions == null) { return; }
 
-                    selectedCharacterAbilityRunner.ExecuteAbilitiesOnMoveEvent();
+                    selectedCharacterActions.Move();
                 }
             }
-
-            aimVector = Vector2.zero;
         }
     }
     private Character CheckForPlayerCharacter(Collider2D[] colliderArrayToCheck) {
@@ -134,11 +117,11 @@ public class PlayerController : MonoBehaviour{
         if (context.performed) {            
             if (CharacterManager.Instance.SelectedCharacter == null) { return; }
 
-            AbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.AbilityRunner;
+            Actions selectedCharacterActions = CharacterManager.Instance.SelectedCharacter.Actions;
 
-            if (selectedCharacterAbilityRunner == null) { return; }
+            if (selectedCharacterActions == null) { return; }
 
-            selectedCharacterAbilityRunner.ExecuteAbilitiesOnGuardEvent();
+            selectedCharacterActions.Guard();
 
             Debug.Log("Guard");
         }
@@ -147,11 +130,13 @@ public class PlayerController : MonoBehaviour{
         if (context.performed) {
             if (CharacterManager.Instance.SelectedCharacter == null) { return; }
 
-            AbilityRunner selectedCharacterAbilityRunner = CharacterManager.Instance.SelectedCharacter.AbilityRunner;
+            Actions selectedCharacterActions = CharacterManager.Instance.SelectedCharacter.Actions;
 
-            if (selectedCharacterAbilityRunner == null) { return; }
+            if (selectedCharacterActions == null) { return; }
 
-            selectedCharacterAbilityRunner.ExecuteAbilitiesOnRestEvent();
+            if (!IsHoveringOverSelectedPlayer()) { return; }
+
+            selectedCharacterActions.Rest();
 
             Debug.Log("Rest");
         }

@@ -1,21 +1,23 @@
 using UnityEngine;
 
 public class MovementAbility : MonoBehaviour {
-    private AbilityRunner abilityRunner;
+    private Character character;
+    private Actions actions;
     private Movement movement;
 
     protected void Awake() {
-        abilityRunner = GetComponent<AbilityRunner>();
+        character = GetComponent<Character>();
 
-        movement = GetComponent<Movement>();
+        actions = character.Actions; 
+        movement = character.Movement;
     }
     private void OnEnable() {
-        abilityRunner.OnMove += Execute;
+        actions.OnMove += Execute;
     }
     private void OnDisable() {
-        abilityRunner.OnMove -= Execute;
+        actions.OnMove -= Execute;
     }
-    public void Execute(Vector2 aimVector) {
-        movement.Move(aimVector);
+    public void Execute(Vector2 forceVector) {
+        movement.Move(forceVector);
     }
 }

@@ -2,52 +2,52 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 public class HealthBarUI : MonoBehaviour {
+    [SerializeField] Color playerHealthBarColor;
+    [SerializeField] Color enemyHealthBarColor;
     [SerializeField] private Health health;
     [SerializeField] private Image healthBar;
     [SerializeField] private Image damageBar;
-    [SerializeField] private float healthBarLerpDuration = 0.1f;
-    [SerializeField] private float damageBarLerpDuration = 0.1f;
     [SerializeField] private float damageBarDelayBeforeLerp = 0.1f;
+    [SerializeField] private float damageBarLerpDuration = 0.1f;
 
-    private Coroutine lerpingHealthBarFillAmount;
+    private Character character;
     private Coroutine lerpingDamageBarFillAmount;
 
+    private float targetAmount;
+
     private void OnEnable() {
-        health.OnHealthChanged += UpdateHealthBarFill;
+        health.OnDamageTaken += UpdateHealthBarFill;
     }
     private void OnDisable() {
-        health.OnHealthChanged -= UpdateHealthBarFill;
+        health.OnDamageTaken -= UpdateHealthBarFill;
     }
-
-    private void UpdateHealthBarFill() {
-        if (lerpingHealthBarFillAmount != null) {
-            StopCoroutine(lerpingHealthBarFillAmount);
+    private void Awake() {
+        character = GetComponentInParent<Character>();
+    }
+    private void Start() {
+        UpdateHealthBarColor();
+    }
+    private void UpdateHealthBarColor() {
+        if (character.CharacterType == CharacterType.Player)
+        {
+            healthBar.color = playerHealthBarColor;
         }
+        if (character.CharacterType == CharacterType.Enemy)
+        {
+            healthBar.color = enemyHealthBarColor;
+        }
+    }
+    private void UpdateHealthBarFill(int currentHealth, int maxHealth) {
         if (lerpingDamageBarFillAmount != null) {
             StopCoroutine(lerpingDamageBarFillAmount);
         }
 
-        float targetAmount = (float) health.CurrentHealth / health.MaxHealth;
-
-        lerpingHealthBarFillAmount = StartCoroutine(LerpHealthBarFillAmount(targetAmount));
-        lerpingDamageBarFillAmount = StartCoroutine(LerpDamageBarFillAmount(targetAmount));
-    }
-
-    private IEnumerator LerpHealthBarFillAmount(float targetAmount) {
-        float startAmount = healthBar.fillAmount;
-        float elapsedTime = 0f;
-
-        while (elapsedTime < healthBarLerpDuration) {
-            elapsedTime += Time.deltaTime;
-
-            healthBar.fillAmount = Mathf.Lerp(startAmount, targetAmount, elapsedTime / healthBarLerpDuration);
-
-            yield return null;
-        }
+        targetAmount = (float) currentHealth / maxHealth;
 
         healthBar.fillAmount = targetAmount;
-    }
 
+        lerpingDamageBarFillAmount = StartCoroutine(LerpDamageBarFillAmount(targetAmount));
+    }
     private IEnumerator LerpDamageBarFillAmount(float targetAmount) {
         float startAmount = damageBar.fillAmount;
         float elapsedTime = 0f;
